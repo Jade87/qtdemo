@@ -1,2 +1,4 @@
-HEADERS += main.h
-SOURCES += main.cpp
+HEADERS += main.h \
+    systemwin32.h
+SOURCES += main.cpp \
+    systemwin32.cpp
