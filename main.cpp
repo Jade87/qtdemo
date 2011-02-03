@@ -1,4 +1,8 @@
 #include "main.h"
-//my change
 
-//your change
+int main(int argv , char *argc[])
+{
+    QApplication a(argv, argc);
+
+    return a.exec();
+}
