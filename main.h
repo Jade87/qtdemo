@@ -8,6 +8,8 @@
 #include <QtGui>
 #include "systemwin32.h"
 
+ #include <QBuffer>
+
 HWND findWindow = GetForegroundWindow();
 //#include <QDataArray>
 

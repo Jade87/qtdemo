@@ -1,54 +1,6 @@
+
 #include "systemwin32.h"
-
-systemWin32::systemWin32()
-{
-    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-
-    if (hSnap == NULL)
-    {
-        QMessageBox::critical(0, "Error!", "Error Load ToolHelp", QMessageBox::Close);
-        return;
-    }
-
-    PROCESSENTRY32 proc = { sizeof(proc) };
-
-    if (Process32First(hSnap, &proc))
-    {
-        QString filename;
-
-        filename = copyToQString(proc.szExeFile);
-        win32sysMap[proc.th32ProcessID] = filename;
-
-        while (Process32Next(hSnap, &proc))
-        {
-            filename = copyToQString(proc.szExeFile);
-            win32sysMap[proc.th32ProcessID] = filename;
-        }
-    }
-}
-
-// принимает имя процесса, возвращает true, если процесс запущен
-bool systemWin32::findProcess(QString findProcName)
-{
-    QMapIterator<int, QString> i(win32sysMap);
-    while (i.hasNext())
-    {
-        i.next();
-        if (i.value() == findProcName) return true;
-    }
-
-    return false;
-}
-
-// получить имя процесса по ID-у
-QString systemWin32::getProcessName(int idProcess)
-{
-    return win32sysMap[idProcess];
-}
-
-// имена процессов WinAPI представлены как массив WCHAR. Для удобства - возврат в QString
-// хэз, может как-нить по другому можно сделать
-QString systemWin32::copyToQString(WCHAR array[MAX_PATH])
+QString sWin32::copyToQString(WCHAR array[MAX_PATH])
 {
     QString string;
     int i = 0;
@@ -61,9 +13,30 @@ QString systemWin32::copyToQString(WCHAR array[MAX_PATH])
     return string;
 }
 
-// получить список всех процессов
-QStringList systemWin32::getAllProcessList()
-{
-    return win32sysMap.values();
-}
+BOOL CALLBACK sWin32::EnumWindowsProc(HWND hWnd, LPARAM lParam) {
+        DWORD dwThreadId, dwProcessId;
+        HINSTANCE hInstance;
+        TCHAR String[255];
+        HANDLE hProcess;
 
+
+
+if (!hWnd)
+        return TRUE;
+if (!::IsWindowVisible(hWnd))
+        return TRUE;
+if (!SendMessage(hWnd, WM_GETTEXT, sizeof(String), (LPARAM)String))
+        return TRUE;
+hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
+dwThreadId = GetWindowThreadProcessId(hWnd, &dwProcessId);
+hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId);
+
+win32map[dwProcessId]=copyToQString(String);
+CloseHandle(hProcess);
+
+return true;
+}
+QStringList sWin32::getAllWindow()
+{
+    return win32map.values();
+}

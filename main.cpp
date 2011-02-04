@@ -1,30 +1,65 @@
-#include "main.h"
+#define STRICT  1
+#include <QApplication>
+#include <windows.h>
+#include <psapi.h>		// NT only!
+#include <iostream>
+#include <QTextEdit>
+#include <QtGui>
+using namespace std;
 
-
-
-
-int main(int argc, char *argv[])
+QString copyToQString(WCHAR array[MAX_PATH])
 {
+    QString string;
+    int i = 0;
 
-    QApplication app(argc, argv);
+    while (array[i] != 0)
+    {
+        string[i] = array[i];
+        i++;
+    }
+    return string;
+}
+ QMap <int,QString> win32map;
+BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
+        DWORD dwThreadId, dwProcessId;
+        HINSTANCE hInstance;
+        TCHAR String[255];
+        HANDLE hProcess;
 
-    QLabel *label = new QLabel;
 
-    bool ok;
 
-    systemWin32 processesInWin;
+if (!hWnd)
+        return TRUE;
+if (!::IsWindowVisible(hWnd))
+        return TRUE;
+if (!SendMessage(hWnd, WM_GETTEXT, sizeof(String), (LPARAM)String))
+        return TRUE;
+hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
+dwThreadId = GetWindowThreadProcessId(hWnd, &dwProcessId);
+hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId);
 
-        QStringList list(processesInWin.getAllProcessList());
-        QString strings;
+win32map[dwProcessId]=copyToQString(String);
+CloseHandle(hProcess);
 
-        for (int i = 0; i < list.size(); i++)
+return true;
+}
+QStringList getAllWindow()
+{
+    return win32map.values();
+}
+
+int main(int argc, char *argv[]) {
+QApplication a(argc,argv);
+QLabel *lab1 = new QLabel();
+
+EnumWindows(EnumWindowsProc, NULL);
+QStringList list(getAllWindow());
+    QString strings;
+    for (int i = 0; i < list.size(); i++)
         {
             strings += list[i] + "\n";
         }
-
-        label->setText(strings);
-        label->show();
-
-
-    return app.exec();
+    lab1->setText(strings);
+lab1 -> show();
+return a.exec();
 }
