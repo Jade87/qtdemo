@@ -52,6 +52,10 @@ QStringList getAllWindow()
 {
     return win32map.values();
 }
+void clearList()
+{
+   win32map.clear();
+}
 BOOL init()
 {
     return EnumWindows(EnumWindowsProc, NULL);
