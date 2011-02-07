@@ -10,12 +10,12 @@
 #include <QStringList>
 
 using namespace std;
-
-
 QMap <int,QString> win32map;
+
 QString copyToQString(WCHAR array[MAX_PATH])
 {
     QString string;
+
     int i = 0;
 
     while (array[i] != 0)
@@ -31,34 +31,30 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
      HINSTANCE hInstance;
      TCHAR String[255];
      HANDLE hProcess;
-      QString active;
-
+     QString active;
 
     if (!hWnd)
         return TRUE;
     if (!::IsWindowVisible(hWnd))
         return TRUE;
-
-
-
     if (!SendMessage(hWnd, WM_GETTEXT, sizeof(String), (LPARAM)String))
         return TRUE;
 
     hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
     dwThreadId = GetWindowThreadProcessId(hWnd, &dwProcessId);
     hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId);
-    if (hWnd == GetForegroundWindow())
+
+    if (hWnd == GetForegroundWindow()){
         active = "true";
+    }
     else
         active = "false";
-    win32map[dwProcessId]=copyToQString(String)+" - "+active;
 
+    win32map[dwProcessId]=copyToQString(String)+" - "+active;
     CloseHandle(hProcess);
 
     return true;
-
 }
-
 QStringList getAllWindow()
 {
     return win32map.values();
@@ -69,8 +65,6 @@ void clearList()
 }
 BOOL init()
 {
-
     return EnumWindows(EnumWindowsProc, NULL);
 }
-
 #endif // WIN32SYS_H
