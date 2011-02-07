@@ -1,3 +1,3 @@
-HEADERS += systemwin32.h
-SOURCES += main.cpp \
-    systemwin32.cpp
+HEADERS += win32sys.h \
+    chekos.h
+SOURCES += main.cpp
