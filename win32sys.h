@@ -13,6 +13,8 @@
 
 using namespace std;
 QMap <int,QString> win32map;
+QMap <int,QString> hist;
+
 
 QString copyToQString(WCHAR array[MAX_PATH])
 {
@@ -43,7 +45,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
      HANDLE hProcess;
      QString active;
 
-       QString timeHour,timeMin,timeSec;
+    QString timeHour,timeMin,timeSec,tiMs;
     FILETIME ProcessStartTime, ProcessEndTime, KernelTime, UserTime;
     SYSTEMTIME LocalCreationTime,LocalExitTime;
     SYSTEMTIME Stime,Etime;
@@ -64,13 +66,17 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
     FileTimeToSystemTime(&ProcessEndTime,&Etime);
     SystemTimeToTzSpecificLocalTime(NULL,&Stime,&LocalExitTime);
 
+
     if (hWnd == GetForegroundWindow())
     {
         GetLocalTime(&LocalCreationTime);
         active = "Set Focus";
-        timeHour.setNum(LocalCreationTime.wHour-LocalExitTime.wHour-Etime.wHour);
-        timeMin.setNum(LocalCreationTime.wMinute-LocalExitTime.wMinute-Etime.wHour);
-        timeSec.setNum(LocalCreationTime.wSecond-LocalExitTime.wSecond-Etime.wHour);
+
+        timeHour.setNum((((LocalCreationTime.wHour*60)-(LocalExitTime.wHour*60))+(LocalCreationTime.wMinute-LocalExitTime.wMinute)));
+        //timeMin.setNum();
+        timeSec.setNum(LocalCreationTime.wSecond);
+        tiMs = "   runtime : ["+timeHour+"m "+timeSec+"s]";
+        win32map[dwProcessId]=copyToQString(String)+tiMs;
     }
     else
     {
@@ -79,8 +85,9 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
 
     }
 
-    win32map[dwProcessId]=copyToQString(String)+" - "+active+" - "+timeHour+"h "+timeMin+"m "+timeSec+"s;||";
+
     CloseHandle(hProcess);
+   // hist[dwProcessId]=copyToQString(String)+" - "+active+" - "+timeHour+"h "+timeMin+"m "+timeSec+"s;||";
 
     return true;
 }
@@ -96,4 +103,10 @@ BOOL init()
 {
     return EnumWindows(EnumWindowsProc, NULL);
 }
+QStringList showHist()
+{
+    return hist.values();
+}
+
+
 #endif // WIN32SYS_H

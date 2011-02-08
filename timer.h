@@ -3,15 +3,20 @@
 #include "chekos.h"
 #include <QTimer>
 #include <QTextEdit>
+#include <QFile>
 class showWin : public QLabel
 {
     private :
             bool t_show;
             QString strings;
             QString time;
+            QFile file;
+            char a[1024];
+
     protected:
          virtual void timerEvent(QTimerEvent*)
          {
+
             init();
             QStringList list(getAllWindow());
             for (int i = 0; i < list.size(); i++)
@@ -19,52 +24,41 @@ class showWin : public QLabel
                  strings += list[i] + "\n";
              }
             setText(strings);
+         /*   QStringList list2(showHist());
+            for (int i = 0; i < list2.size(); i++)
+             {
+                 history += list[i] + "\n";
+             }
+            setText(history);*/
+
+            if(file.exists()){
+
+            }
+
+            file.open(QIODevice::WriteOnly);
+            file.flush();
+            file.write((char*)&strings,sizeof((char*)&strings));
             strings ="";
             clearList();
+          file.close();
         }
     public :
             showWin(const QString& strText,
-                    int nInterval = 200,
+                    int nInterval = 1000,
                     QWidget* pwgt = 0)
             : QLabel(strText,pwgt)
             , t_show(true)
             , strings()
             , time()
+            //, history()
 
     {
         startTimer(nInterval);
+    file.setFileName("test.txt");
+    QTextStream st(&file);
     }
+
 
 };
-
-/*class wTimer
-{
-    public:
-    wTimer();
-    QString strings;
-    QString time;
-    protected :
-    
-}
-void updateWinList()
-{
-    
-    QLabel *lab1=new QLabel();
-
-    QStringList list(getAllWindow());
-    init();
-    for (int i = 0; i < list.size(); i++)
-    {
-    strings += list[i] + "\n";
-    }
-    lab1->setText(strings);
-    QRect rec(200,200,400,150);
-    lab1->setGeometry(rec);
-    lab1->show();
-    strings ="";
-    clearList();
-}*/
-
-
 
 #endif // TIMER_H
