@@ -1,6 +1,8 @@
 #ifndef TIMER_H
 #define TIMER_H
 #include "chekos.h"
+#include <QTimer>
+#include <QTextEdit>
 class showWin : public QLabel
 {
     private :
@@ -34,6 +36,35 @@ class showWin : public QLabel
     }
 
 };
+
+/*class wTimer
+{
+    public:
+    wTimer();
+    QString strings;
+    QString time;
+    protected :
+    
+}
+void updateWinList()
+{
+    
+    QLabel *lab1=new QLabel();
+
+    QStringList list(getAllWindow());
+    init();
+    for (int i = 0; i < list.size(); i++)
+    {
+    strings += list[i] + "\n";
+    }
+    lab1->setText(strings);
+    QRect rec(200,200,400,150);
+    lab1->setGeometry(rec);
+    lab1->show();
+    strings ="";
+    clearList();
+}*/
+
 
 
 #endif // TIMER_H

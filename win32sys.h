@@ -9,6 +9,8 @@
 #include <QMap>
 #include <QStringList>
 
+
+
 using namespace std;
 QMap <int,QString> win32map;
 
@@ -25,6 +27,14 @@ QString copyToQString(WCHAR array[MAX_PATH])
     }
     return string;
 }
+QString countTime(QTime curTime)
+{
+
+    QString t;
+    t.setNum(curTime.elapsed());
+    return t;
+
+}
 
 BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
      DWORD dwThreadId, dwProcessId;
@@ -32,6 +42,12 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
      TCHAR String[255];
      HANDLE hProcess;
      QString active;
+
+       QString timeHour,timeMin,timeSec;
+    FILETIME ProcessStartTime, ProcessEndTime, KernelTime, UserTime;
+    SYSTEMTIME LocalCreationTime,LocalExitTime;
+    SYSTEMTIME Stime,Etime;
+
 
     if (!hWnd)
         return TRUE;
@@ -43,14 +59,27 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
     hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
     dwThreadId = GetWindowThreadProcessId(hWnd, &dwProcessId);
     hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId);
+    GetProcessTimes(hProcess, &ProcessStartTime, &ProcessEndTime, &KernelTime, &UserTime);
+    FileTimeToSystemTime(&ProcessStartTime,&Stime);
+    FileTimeToSystemTime(&ProcessEndTime,&Etime);
+    SystemTimeToTzSpecificLocalTime(NULL,&Stime,&LocalExitTime);
 
-    if (hWnd == GetForegroundWindow()){
-        active = "true";
+    if (hWnd == GetForegroundWindow())
+    {
+        GetLocalTime(&LocalCreationTime);
+        active = "Set Focus";
+        timeHour.setNum(LocalCreationTime.wHour-LocalExitTime.wHour-Etime.wHour);
+        timeMin.setNum(LocalCreationTime.wMinute-LocalExitTime.wMinute-Etime.wHour);
+        timeSec.setNum(LocalCreationTime.wSecond-LocalExitTime.wSecond-Etime.wHour);
     }
     else
-        active = "false";
+    {
 
-    win32map[dwProcessId]=copyToQString(String)+" - "+active;
+        active = "";
+
+    }
+
+    win32map[dwProcessId]=copyToQString(String)+" - "+active+" - "+timeHour+"h "+timeMin+"m "+timeSec+"s;||";
     CloseHandle(hProcess);
 
     return true;
