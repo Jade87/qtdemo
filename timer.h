@@ -1,10 +1,10 @@
 #ifndef TIMER_H
 #define TIMER_H
-#include "chekos.h"
+//#include "chekos.h"
 #include <QTimer>
-#include <QTextEdit>
+//#include <QTextEdit>
 #include <QFile>
-class showWin : public QLabel
+class showWin
 {
     private :
             bool t_show;
@@ -14,7 +14,7 @@ class showWin : public QLabel
             char a[1024];
 
     protected:
-         virtual void timerEvent(QTimerEvent*)
+         virtual QString timerEvent(QTimerEvent*)
          {
 
             init();
@@ -23,27 +23,13 @@ class showWin : public QLabel
              {
                  strings += list[i] + "\n";
              }
-            setText(strings);
-            if(file.exists()){
-
-            }
-
-            file.open(QIODevice::WriteOnly);
-            file.flush();
-            file.write((char*)&strings,sizeof((char*)&strings));
-            strings ="";
-            clearList();
-            file.close();
+         return strings;
         }
     public :
             showWin(const QString& strText,
                     int nInterval = 1000,
                     QWidget* pwgt = 0)
-            : QLabel(strText,pwgt)
-            , t_show(true)
-            , strings()
-            , time()
-            //, history()
+
 
     {
         startTimer(nInterval);

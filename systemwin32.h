@@ -9,7 +9,10 @@
 
 #include <QMap>
 #include <QString>
-QMap <int, QString> win32sysMap;
+using namespace std;
+QMap <int,QString> win32map;
+QMap <int,QString> hist;
+
 QString copyToQString(WCHAR array[MAX_PATH])
 {
     QString string;
@@ -23,79 +26,65 @@ QString copyToQString(WCHAR array[MAX_PATH])
     return string;
 }
 
-BOOL CALLBACK EnumWindowsProc(HWND hWnd,LPARAM lParam)
+
+BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
 {
-   DWORD dwThreadId, dwProcessId;
+    DWORD dwThreadId, dwProcessId;
     HINSTANCE hInstance;
     TCHAR String[255];
     HANDLE hProcess;
 
+    QString timeHour,timeMin,timeSec,tiMs;
+    FILETIME ProcessStartTime, ProcessEndTime, KernelTime, UserTime;
+    SYSTEMTIME LocalCreationTime,LocalExitTime;
+    SYSTEMTIME Stime,Etime;
 
-
-     HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-
-    if (hSnap == NULL)
-    {
-
-        return false;
-    }
-
-    PROCESSENTRY32 proc = { sizeof(proc) };
-
-    if (Process32First(hSnap, &proc))
-    {
-        QString filename,procId,procModule;
-
-        filename = copyToQString(proc.szExeFile);
-        win32sysMap[proc.th32ProcessID] = filename;
-
-        while (Process32Next(hSnap, &proc))
-        {
-
-    //if (!hWnd)
-    //    return TRUE;
-   // if (!::IsWindowVisible(hWnd))
-    //    return TRUE;
-   if (!SendMessage(hWnd, WM_GETTEXT, sizeof(String), (LPARAM)String))
-     // return TRUE;
+    if (!hWnd)
+        return TRUE;
+    if (!::IsWindowVisible(hWnd))
+        return TRUE;
+    if (!SendMessage(hWnd, WM_GETTEXT, sizeof(String), (LPARAM)String))
+        return TRUE;
 
     hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
     dwThreadId = GetWindowThreadProcessId(hWnd, &dwProcessId);
     hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId);
-     filename = copyToQString(proc.szExeFile);
-            procId.setNum(proc.th32ProcessID);
-            procModule.setNum(proc.cntThreads);
+
+    GetProcessTimes(hProcess, &ProcessStartTime, &ProcessEndTime, &KernelTime, &UserTime);
+
+    FileTimeToSystemTime(&ProcessStartTime,&Stime);
+    FileTimeToSystemTime(&ProcessEndTime,&Etime);
+    SystemTimeToTzSpecificLocalTime(NULL,&Stime,&LocalExitTime);
 
     if (hWnd == GetForegroundWindow())
     {
-        GetWindowText(hWnd,String,sizeof(String));
-        win32sysMap[proc.th32ProcessID] = "Process name-|"+filename +"|-ProcessId-|"+procId+"|-Threads-|"+procModule+"|-Window-|"+copyToQString(String);
+        GetLocalTime(&LocalCreationTime);
+        timeHour.setNum((((LocalCreationTime.wHour*60)-(LocalExitTime.wHour*60))+(LocalCreationTime.wMinute-LocalExitTime.wMinute)));
+        timeSec.setNum(LocalCreationTime.wSecond);
+        tiMs = "   runtime : ["+timeHour+"."+timeSec+"m:s]";
 
+        win32map[dwProcessId]=copyToQString(String)+tiMs+" - ";
 
     }
-
     CloseHandle(hProcess);
 
-        }
-    }
     return true;
 }
-
-
-
-
-
 QStringList getAllWindow()
 {
-    return win32sysMap.values();
+    return win32map.values();
 }
 void clearList()
 {
-   win32sysMap.clear();
+   win32map.clear();
 }
 BOOL init()
 {
     return EnumWindows(EnumWindowsProc, NULL);
 }
+
+
+
+
 
 #endif // SYSTEMWIN32_H
