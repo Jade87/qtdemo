@@ -3,6 +3,6 @@
 #if defined(Q_OS_LINUX)
 //Линукс
 #elif defined(Q_OS_WIN)
-#include "win32sys.h"
+#include "sysProcWin.h"
 #endif
 #endif // CHEKOS_H

@@ -24,13 +24,6 @@ class showWin : public QLabel
                  strings += list[i] + "\n";
              }
             setText(strings);
-         /*   QStringList list2(showHist());
-            for (int i = 0; i < list2.size(); i++)
-             {
-                 history += list[i] + "\n";
-             }
-            setText(history);*/
-
             if(file.exists()){
 
             }
@@ -40,7 +33,7 @@ class showWin : public QLabel
             file.write((char*)&strings,sizeof((char*)&strings));
             strings ="";
             clearList();
-          file.close();
+            file.close();
         }
     public :
             showWin(const QString& strText,
