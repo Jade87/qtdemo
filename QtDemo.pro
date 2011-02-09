@@ -1,10 +1,7 @@
-QT       -= gui
-
+QT -= gui
 TARGET = getprocesslist
-CONFIG   += console
-CONFIG   -= app_bundleT
-
+CONFIG += console
+CONFIG -= app_bundleT
 TEMPLATE = app
-SOURCES += main.cpp \
-    systemwin32.cpp
+SOURCES += main.cpp
 HEADERS += systemwin32.h
