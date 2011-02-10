@@ -38,6 +38,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
     FILETIME ProcessStartTime, ProcessEndTime, KernelTime, UserTime;
     SYSTEMTIME LocalCreationTime,LocalExitTime;
     SYSTEMTIME Stime,Etime;
+    PWINDOWINFO wInf;
 
     if (!hWnd)
         return TRUE;
@@ -58,14 +59,16 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
 
     if (hWnd == GetForegroundWindow())
     {
+
         GetLocalTime(&LocalCreationTime);
         timeHour.setNum((((LocalCreationTime.wHour*60)-(LocalExitTime.wHour*60))+(LocalCreationTime.wMinute-LocalExitTime.wMinute)));
         timeSec.setNum(LocalCreationTime.wSecond);
-        tiMs = "   runtime : ["+timeHour+"."+timeSec+"m:s]";
-
-        win32map[dwProcessId]=copyToQString(String)+tiMs+" - ";
-
+        tiMs = " \t\n  runtime : ["+timeHour+"."+timeSec+"m:s]";
+        win32map[dwProcessId]="|Process name:"+copyToQString(String)+"||"+tiMs+"";
     }
+
+
+
     CloseHandle(hProcess);
 
     return true;

@@ -33,8 +33,7 @@ class showWin
 
     {
         startTimer(nInterval);
-    file.setFileName("test.txt");
-    QTextStream st(&file);
+       QTextStream st(&file);
     }
 
 
